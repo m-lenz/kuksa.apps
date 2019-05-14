@@ -1,54 +1,40 @@
-# Docker
+# Traccar
 
-## Build prerequisites
+## overview
+| step | status |
+:----:| -----
+build | <span style="color:lightgreen">✔</span>
+deploy | <span style="color:lightgreen">✔</span>
+run | <span style="color:lightgreen">✔</span>
 
-1. Enable docker experimental feature.
-
-Create a daemon.json file in /etc/docker/ and add 
-
+## building: <span style="color:lightgreen">✔</span>
+the `SIMPLE`-prefix suggests, that the content of this dockerfile is a python-script
 ```
-{
- 
-  "experimental" : true
-
-}
+cd <invehicle-dir>/kuksa-appmanager
+./build.sh <architecture> (arm32v6 or amd64)
+...
+docker save <image ID> > SIMPLE_traccar.tar
 ```
+building may yield the following qemu-error:
+`qemu: Unsupported syscall: 384` which does not prevent building.
 
-and restart docker daemon using  `sudo systemctl restart docker`
-
-https://github.com/docker/docker-ce/blob/master/components/cli/experimental/README.md
-
-2. install  qemu-user-static package on the host machine
-
- use 
- 
- ```sudo apt-get install qemu-user-static```
-
-## Build
-
-Build Kuksa-compatible dockers from this app. The Dockerfile is supposed to 
-be run through the magic build.sh wrapper.
-
-To build for am64 do
-
-`./build.sh amd64`
-
-to build for a Pi
-
-`/build.sh arm32v6`
-
-If you try playing with the docker file directly, note that the build context
-needs to be the toplevel of invehicle-apps
-
-## Run build docker
-To start it run e.g.
-
+## deploying: <span style="color:lightgreen">✔</span>
 ```
-docker run amd64/kuksa-traccar:0.1.0 
+docker load < DOCKER_appmanager.tar
+```
+this returns the ``<image ID>`` of the imported docker-image
+## running: <span style="color:lightgreen">✔</span>
+
+If installed via the Appmanager or Foreverchecker, the app will run automatically. 
+Else it needs to be called with :
+``` 
+python -u traccar-client.py
 ```
 
-For configuration refer to the main readme. Please note that currently the traccar demo is configured using a config file, so you need to configure it according to your setup before packaging the docker.
+or 
 
-
-
+``` 
+python3 -u traccar-client.py
+```
+> the -u flag disables buffered input to increase performance. The `traccar-client.ini` states, where the local GPS-server is ruunning and fdrom which file to read data, if no GPS is present.
 
